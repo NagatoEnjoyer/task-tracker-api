@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController // Tells Spring this handles web requests and returns raw data (JSON)
-@CrossOrigin(origins = "https://task-tracker-ui-theta.vercel.app/")
+@CrossOrigin(origins = "https://task-tracker-ui-theta.vercel.app")
 @RequestMapping("/api/tasks") // Sets the base URL for this whole file
 public class TaskController {
 
