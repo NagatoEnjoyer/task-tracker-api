@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "https://task-tracker-api-ragt.onrender.com")
+@CrossOrigin(origins = "https://task-tracker-ui-theta.vercel.app/")
 @RequestMapping("/api/tasks")
 public class TaskController {
 
