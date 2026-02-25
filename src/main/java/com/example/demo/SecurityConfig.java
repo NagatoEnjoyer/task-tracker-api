@@ -19,11 +19,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http
-                .csrf(AbstractHttpConfigurer::disable) // We disable this because we are building a REST API
-                .cors(cors -> cors.configure(http)) // Uses your existing @CrossOrigin rules
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configure(http))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // OPEN DOOR: Anyone can visit /register or /login
-                        .anyRequest().authenticated() // LOCKED DOOR: Everything else requires a VIP wristband
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
                 );
 
         return http.build();

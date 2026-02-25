@@ -21,10 +21,10 @@ public class JwtUtil {
 
     public String generateToken(String username) {
         return Jwts.builder()
-                .setSubject(username) // The name on the wristband
-                .setIssuedAt(new Date(System.currentTimeMillis())) // Time it was printed
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Expires in 10 hours
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256) // The cryptographic signature
-                .compact(); // Print it!
+                .setSubject(username)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 }
