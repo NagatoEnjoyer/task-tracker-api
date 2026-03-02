@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import jakarta.servlet.http.Cookie;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,17 +24,20 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-
-            if (jwtUtil.validateToken(token)) {
-                String username = jwtUtil.extractUsername(token);
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
-                SecurityContextHolder.getContext().setAuthentication(auth);
+        String token = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                }
             }
         }
+        if (token != null && jwtUtil.validateToken(token)) {
+            String username = jwtUtil.extractUsername(token);
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(auth);
+        }
         chain.doFilter(request, response);
+
     }
 }

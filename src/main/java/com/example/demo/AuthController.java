@@ -1,6 +1,9 @@
 package com.example.demo;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User loginRequest) {
+    public ResponseEntity<String> login(@RequestBody User loginRequest, HttpServletResponse response) {
         User existingUser = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
 
         if (existingUser == null) {
@@ -47,6 +50,15 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(existingUser.getUsername());
 
-        return ResponseEntity.ok(token);
+        ResponseCookie cookie = ResponseCookie.from("jwt", token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(60 * 60 * 2)
+                .sameSite("None")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseEntity.ok("Logged in securely");
     }
 }
