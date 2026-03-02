@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -37,22 +38,28 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public Task updateTask(@PathVariable Long id, @RequestBody Task updatedTask) {
-        return taskRepository.findById(id)
-                .map(task -> {
-                    task.setTitle(updatedTask.getTitle());
-                    task.setDescription(updatedTask.getDescription());
-                    task.setStatus(updatedTask.getStatus());
-                    return taskRepository.save(task);
-                })
-                .orElseGet(() -> {
-                    updatedTask.setId(id);
-                    return taskRepository.save(updatedTask);
-                });
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task updatedTask, Principal principal) {
+        String username = principal.getName();
+        Task existingTask = taskRepository.findById(id).orElseThrow();
+        if (!existingTask.getUser().getUsername().equals(username)) {
+            return ResponseEntity.status(403).build();
+        }
+        existingTask.setTitle(updatedTask.getTitle());
+        existingTask.setDescription(updatedTask.getDescription());
+        existingTask.setStatus(updatedTask.getStatus());
+
+        return ResponseEntity.ok(taskRepository.save(existingTask));
+
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTask(@PathVariable Long id) {
-        taskRepository.deleteById(id);
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id, Principal principal) {
+        String username = principal.getName();
+        Task existingTask = taskRepository.findById(id).orElseThrow();
+        if (!existingTask.getUser().getUsername().equals(username)) {
+            return ResponseEntity.status(403).build();
+        }
+        taskRepository.delete(existingTask);
+        return ResponseEntity.ok().build();
     }
 }
