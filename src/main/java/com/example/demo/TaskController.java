@@ -1,6 +1,9 @@
 package com.example.demo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -8,21 +11,29 @@ import java.util.List;
 @RequestMapping("/api/tasks")
 public class TaskController {
 
+    @Autowired
     private final TaskRepository taskRepository;
 
+    @Autowired
+    private UserRepository userRepository;
     public TaskController(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<Task> getAllTasks(Principal principal) {
+        String username = principal.getName();
+        User currentUser = userRepository.findByUsername(username).orElseThrow();
+        return taskRepository.findByUser(currentUser);
     }
 
     @PostMapping
-    public Task createTask(@RequestBody Task newTask) {
-        return taskRepository.save(newTask);
+    public Task createTask(@RequestBody Task task, Principal principal) {
+        String username = principal.getName();
+        User currentUser = userRepository.findByUsername(username).orElseThrow();
+        task.setUser(currentUser);
+        return taskRepository.save(task);
     }
 
     @PutMapping("/{id}")
