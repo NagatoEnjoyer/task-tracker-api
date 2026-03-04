@@ -22,6 +22,9 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private EmailService emailService;
+
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
 
@@ -30,8 +33,13 @@ public class AuthController {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
         userRepository.save(user);
+
+        try {
+            emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
+        } catch (Exception e) {
+            System.out.println("Failed to send welcome email: " + e.getMessage());
+        }
 
         return ResponseEntity.ok("User registered successfully!");
     }
